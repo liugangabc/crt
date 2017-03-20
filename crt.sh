@@ -1,6 +1,6 @@
-#!/bin/bash -ex
+#!/bin/bash
+#set -ex
 
-ARGS=`getopt -o hlg:p:s: --long help,list,put:,get:,ssh: -n 'crt' -- "$@"`
 
 function usage {
 echo '''usage: crt {-l|--list|-h|--help}
@@ -12,12 +12,17 @@ echo '''usage: crt {-l|--list|-h|--help}
          -g，--get                download files from host path to local path'''
 }
 
+ARGS=`getopt -o hlg:p:s: --long help,list,put:,get:,ssh: -n 'crt' -- "$@"`
+
+if [ $? != 0 ]; then
+   usage
+   exit 1
+fi
 
 if [ $# = 0 ]; then
     usage
     exit 1
 fi
-
 
 ROOT=/etc/crt
 CONF_PATH=${ROOT}/conf/host
@@ -25,13 +30,17 @@ GO_PATH=${ROOT}/modules/ssh.sh
 PUT_PATH=${ROOT}/modules/put.sh
 GET_PATH=${ROOT}/modules/get.sh
 
-if [ ! -f "$HOME/host" ]; then 
-  CONF_PATH=$HOME/host
+if [ -f "$HOME/.host" ]; then 
+  CONF_PATH=$HOME/.host
 fi
 
 while true;
 do 
    case "$1" in
+     -h|--help)
+       usage
+       break
+       ;;
      -l|--list)
        echo "==============="
        awk '{print $1"\t"$2"\t"$3}' ${CONF_PATH}
