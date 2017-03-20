@@ -1,14 +1,25 @@
 #!/bin/bash -ex
 
-ARGS=`getopt -o hlg:p:s: --long help,list,put:,get:,ssh: -n 'gogo' -- "$@"`
+ARGS=`getopt -o hlg:p:s: --long help,list,put:,get:,ssh: -n 'crt' -- "$@"`
 
-if [ $? != 0 ]; then
-  echo "-h or --help"
-  exit 1
+function usage {
+echo '''usage: crt {-l|--list|-h|--help}
+       crt [-s] <host name>
+       crt { [-pg] <host name> path path}
+         -l, --list               show host table
+         -s, --ssh                ssh host
+         -p, --put                upload files from locacl path to host path
+         -g，--get                download files from host path to local path'''
+}
+
+
+if [ $# = 0 ]; then
+    usage
+    exit 1
 fi
 
 
-ROOT=~/proj/crt
+ROOT=/etc/crt
 CONF_PATH=${ROOT}/conf/host
 GO_PATH=${ROOT}/modules/ssh.sh
 PUT_PATH=${ROOT}/modules/put.sh
