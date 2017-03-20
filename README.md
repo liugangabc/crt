@@ -43,3 +43,10 @@ rpmbuild -ba crt.spec
 yum install crt.rpm
 '''
 
+# deb build step
+1.安装 包转换工具
+apt-get install alien
+2.转换为deb包
+alien crt.rpm
+3.安装deb包
+dpkg -i crt.deb
