@@ -1,5 +1,11 @@
 #!/usr/bin/expect
 
+trap {
+ set rows [stty rows]
+ set cols [stty columns]
+ stty rows $rows columns $cols < $spawn_out(slave,name)
+} WINCH
+
 set user [lindex $argv 0]  
 set pass [lindex $argv 1]  
 set host [lindex $argv 2]  
