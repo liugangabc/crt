@@ -55,6 +55,11 @@ do
        USER=${AA[3]}
        PW=${AA[4]}
        ${GO_PATH} ${USER} ${PW} ${IP} ${PORT}
+       if [ $? != 403 ]; then
+          echo -e "\033[41;37m WARNING: known_hosts expire !!! \033[0m"
+          echo "" > ~/.ssh/known_hosts
+          ${GO_PATH} ${USER} ${PW} ${IP} ${PORT}
+       fi
        shift
        shift
        ;;
