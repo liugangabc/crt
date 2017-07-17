@@ -5,9 +5,12 @@
 
 # Init
 
+HOST_NOT_EXIST=1
 PASSWD_ERROR=3
 KEY_ERROR=4
 REFUSED_ERROR=5
+TIMEOUT_ERROR=124
+
 
 ROOT=/etc/crt
 CONF_PATH=${ROOT}/conf/host
@@ -18,10 +21,11 @@ GET_PATH=${ROOT}/modules/get.sh
 readonly PASSWD_ERROR
 readonly KEY_ERROR
 readonly REFUSED_ERROR
-readonly ROOT=/etc/crt
-readonly GO_PATH=${ROOT}/modules/ssh.sh
-readonly PUT_PATH=${ROOT}/modules/put.sh
-readonly GET_PATH=${ROOT}/modules/get.sh
+
+readonly ROOT
+readonly GO_PATH
+readonly PUT_PATH
+readonly GET_PATH
 
 
 # The function of the prompt usage information 
@@ -59,14 +63,52 @@ fi
 #   echo "-l in ARGS"
 # fi
 
-InitParameters(){
-  Init_status=$(grep ^${1} ${CONF_PATH} || echo 1)
-  if [ "${Init_status}" == "1" ]; then
-    echo -e "\n \033[41;37m ERROR: Name not exist !!! \033[0m"
-    awk '{print $1"\t"$2"\t"$3}' ${CONF_PATH}
-    exit 1
+Exception(){
+  case ${1} in
+     ${KEY_ERROR})
+        echo -e "\n\033[43;37m WARNING: known_hosts expire \033[0m"
+        echo "" > ~/.ssh/known_hosts
+        EXE "${1}"
+        ;;
+     ${PASSWD_ERROR})
+        echo -e "\n\033[41;37mERROR: Password error \033[0m"
+        exit 1
+        ;;
+     ${REFUSED_ERROR})
+        echo -e "\n\033[41;37mERROR: Connection refused \033[0m"
+        exit 1
+        ;;
+     ${HOST_NOT_EXIST})
+        echo -e "\n\033[41;37mERROR: Name not exist \033[0m"
+        awk '{print $1"\t"$2"\t"$3}' ${CONF_PATH}
+        exit 1
+        ;;
+     ${TIMEOUT_ERROR})
+        echo -e "\n\033[41;37mERROR: Connection Timeout \033[0m"
+        exit 1
+        ;;
+     *) ;;
+   esac
+}
+
+EXE(){
+  if [ -n "${2}" ]; then
+    # eval主要用在对参数的特殊处理上面的，一般的命令行，shell处理参数就只执行一遍，像转义和变量转变；
+    # 但加上eval后就可以对参数经行两遍处理
+     STATUS_CODE=$(eval ${1})
+     Exception ${STATUS_CODE}
+  else
+     ${1}
+     STATUS_CODE=$?
+     Exception ${STATUS_CODE}
   fi
-  Param_string=$(grep ^${1} ${CONF_PATH})
+}
+
+InitParameters(){
+  # $(cmd) can run script
+  # Init_status=$(grep ^${1} ${CONF_PATH} || echo 1)
+  EXE "grep '^${1} ' ${CONF_PATH} || echo 1" 1
+  Param_string=$(grep "^${1} " ${CONF_PATH})
   # Convert string into array
   Param_arrays=(${Param_string})
   IP=${Param_arrays[1]}
@@ -83,6 +125,8 @@ InitParameters(){
   unset PW
 }
 
+
+# __main__
 
 while true;
 do 
@@ -101,31 +145,17 @@ do
        break
        ;;
      -g|--get)
-       InitParameters ${2} ${GET_PATH} $3 $4
+       InitParameters ${2} ${GET_PATH} ${3} ${4}
        break
        ;;
      -p|--put)
-       InitParameters ${2} ${PUT_PATH} $3 $4
+       InitParameters ${2} ${PUT_PATH} ${3} ${4}
        break
        ;;
      *) usage ;;
    esac
 done
 
-ExceptionHandling(){
-  ${1}
-  STATUS_CODE=$?
-  if [ ${STATUS_CODE} == ${KEY_ERROR} ]; then
-     echo -e "\n \033[43;37m WARNING: known_hosts expire !!! \033[0m"
-     echo "" > ~/.ssh/known_hosts
-     ExceptionHandling "${1}"
-  elif [ ${STATUS_CODE} == ${PASSWD_ERROR} ]; then
-     echo -e "\n \033[41;37m ERROR: Password error !!! \033[0m"
-  elif [ ${STATUS_CODE} == ${REFUSED_ERROR} ]; then
-     echo -e "\n \033[41;37m ERROR: Connection refused !!! \033[0m"
-  fi
-  unset STATUS_CODE
-}
 
-ExceptionHandling "${CMD}"
+EXE "${CMD}"
 exit 0

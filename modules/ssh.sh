@@ -20,8 +20,11 @@ set user [lindex $argv 0]
 set pass [lindex $argv 1]  
 set host [lindex $argv 2]  
 set port [lindex $argv 3]  
-set timeout 15
+# set timeout 60 
 spawn ssh -l $user $host -p $port
+# -1表示永不超时
+set timeout -1
+
 # puts "password: $pass"
 expect {
   -re "Connection refused"
@@ -49,7 +52,7 @@ expect {
       send "$pass\r"
       exp_continue
   }
-  -re "#"
+  -re "@"
   {
       interact
   }

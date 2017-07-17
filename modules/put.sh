@@ -22,8 +22,10 @@ set host [lindex $argv 2]
 set port [lindex $argv 3]
 set local [lindex $argv 4]
 set origin [lindex $argv 5]
-set timeout 30
 spawn scp -P${port} -r ${local} ${user}@${host}:${origin}
+# -1表示永不超时
+set timeout -1
+
 expect {
   -re "Connection refused"
   {
@@ -50,7 +52,7 @@ expect {
       send "$pass\r"
       exp_continue
   }
-  -re "#"
+  -re "@"
   {
       interact
   }

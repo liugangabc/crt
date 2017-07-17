@@ -41,7 +41,7 @@ yum install -y rpm-build rpmdevtools
 
 2.来生成一个 rpm 包的骨架目录 默认在 ~/rpmbuild
 ```bash
-rpmdev-setuptreer
+rpmdev-setuptree
 ```
 
 3.将源码打包拷贝到 SOURCES
