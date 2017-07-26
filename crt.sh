@@ -107,8 +107,8 @@ EXE(){
 InitParameters(){
   # $(cmd) can run script
   # Init_status=$(grep ^${1} ${CONF_PATH} || echo 1)
-  EXE "grep '^${1} ' ${CONF_PATH} || echo 1" 1
-  Param_string=$(grep "^${1} " ${CONF_PATH})
+  EXE "grep '^${1}[[:space:]]' ${CONF_PATH} || echo 1" 1
+  Param_string=$(grep "^${1}[[:space:]]" ${CONF_PATH})
   # Convert string into array
   Param_arrays=(${Param_string})
   IP=${Param_arrays[1]}
