@@ -1,5 +1,5 @@
 Name:           crt
-Version:        0.4.0
+Version:        0.6.0
 Release:        1%{?dist}
 Summary:        crt
 

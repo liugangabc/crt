@@ -66,7 +66,7 @@ apt-get install alien
 
 2.转换为deb包
 ```bash
-alien crt.rpm
+alien --to-deb --scripts crt.rpm
 ```
 
 3.安装deb包
