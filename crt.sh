@@ -68,7 +68,7 @@ Exception(){
      ${KEY_ERROR})
         echo -e "\n\033[43;37m WARNING: known_hosts expire \033[0m"
         echo "" > ~/.ssh/known_hosts
-        EXE "${1}"
+        EXE "${CMD}"
         ;;
      ${PASSWD_ERROR})
         echo -e "\n\033[41;37mERROR: Password error \033[0m"
@@ -155,7 +155,6 @@ do
      *) usage ;;
    esac
 done
-
 
 EXE "${CMD}"
 exit 0
